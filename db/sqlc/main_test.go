@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"testing"
+
+	_ "github.com/lib/pq"
 )
 
 var testQueries *Queries
