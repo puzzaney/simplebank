@@ -10,11 +10,14 @@ import (
 )
 
 func createRandomUser(t *testing.T) User {
+	hashedPassword, err := util.HashPassword(util.RandomString(6))
+	require.NoError(t, err)
+
 	arg := CreateUserParams{
-		Username: util.RandomOwner(),
-		HashedPassword: "secret",
-		Email: util.RandomEmail(),
-		FullName: util.RandomOwner(),
+		Username:       util.RandomOwner(),
+		HashedPassword: hashedPassword,
+		Email:          util.RandomEmail(),
+		FullName:       util.RandomOwner(),
 	}
 
 	user, err := testQueries.CreateUser(context.Background(), arg)
@@ -26,8 +29,8 @@ func createRandomUser(t *testing.T) User {
 
 	require.True(t, user.PasswordChangedAt.IsZero())
 	require.NotZero(t, user.CreatedAt)
-	
-	return user 
+
+	return user
 }
 
 func TestCreateUser(t *testing.T) {
