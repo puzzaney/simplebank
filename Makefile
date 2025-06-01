@@ -17,7 +17,10 @@ sqlc:
 	sqlc generate
 
 test:
-	go test -v -cover ./...
+	go test -v -cover -coverprofile coverage.out ./...
+
+testapi:
+	go test -v -cover -coverprofile coverage.out ./api
 
 server:
 	go run main.go
@@ -25,4 +28,4 @@ server:
 mock:
 	mockgen -destination db/mock/store.go -package mockdb github.com/puzzaney/simplebank/db/sqlc Store
 
-.PHONY:postgres createdb dropdb migrateup migratedown sqlc test server mock
+.PHONY:postgres createdb dropdb migrateup migratedown sqlc test server mock testapi
