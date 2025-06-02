@@ -113,6 +113,30 @@ func TestCreateAccountAPI(t *testing.T) {
 			requireBodyMatchAccount(t, recorder.Body, account)
 		},
 	},
+		{
+			name: "InternalError",
+			body: gin.H{
+				"owner":    account.Owner,
+				"currency": account.Currency,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().CreateAccount(gomock.Any(), gomock.Any()).Times(1).Return(db.Account{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		}, {
+			name: "BadRequest",
+			body: gin.H{
+				"currency": account.Currency,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().CreateAccount(gomock.Any(), gomock.Any()).Times(0).Return(db.Account{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
 	}
 
 	for i := range testCases {
@@ -140,6 +164,162 @@ func TestCreateAccountAPI(t *testing.T) {
 	}
 }
 
+type Query struct {
+	PageID   int32
+	PageSize int32
+}
+
+func TestListAccountAPI(t *testing.T) {
+	n := 5
+	accounts := make([]db.Account, n)
+
+	for i := range accounts {
+		accounts[i] = randomAccount()
+	}
+
+	testCases := []struct {
+		name          string
+		query         Query
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{{
+		name: "OK",
+		query: Query{
+			PageID:   1,
+			PageSize: int32(n),
+		},
+		buildStubs: func(store *mockdb.MockStore) {
+			arg := db.ListAccountsParams{
+				Limit:  int32(n),
+				Offset: 0,
+			}
+			store.EXPECT().ListAccounts(gomock.Any(), gomock.Eq(arg)).Times(1).Return(accounts, nil)
+		},
+		checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+			require.Equal(t, http.StatusOK, recorder.Code)
+			requireBodyMatchAccounts(t, recorder.Body, accounts)
+		},
+	}, {
+		name: "InternalError",
+		query: Query{
+			PageID:   1,
+			PageSize: int32(n),
+		},
+		buildStubs: func(store *mockdb.MockStore) {
+			store.EXPECT().ListAccounts(gomock.Any(), gomock.Any()).Times(1).Return([]db.Account{}, sql.ErrConnDone)
+		},
+		checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+			require.Equal(t, http.StatusInternalServerError, recorder.Code)
+		},
+	}, {
+		name: "InvalidPageID",
+		query: Query{
+			PageID:   -1,
+			PageSize: int32(n),
+		},
+		buildStubs: func(store *mockdb.MockStore) {
+			store.EXPECT().ListAccounts(gomock.Any(), gomock.Any()).Times(0)
+		},
+		checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+			require.Equal(t, http.StatusBadRequest, recorder.Code)
+		},
+	}, {
+		name: "InvalidPageSize",
+		query: Query{
+			PageID:   1,
+			PageSize: 1000,
+		},
+		buildStubs: func(store *mockdb.MockStore) {
+			store.EXPECT().ListAccounts(gomock.Any(), gomock.Any()).Times(0)
+		},
+		checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+			require.Equal(t, http.StatusBadRequest, recorder.Code)
+		},
+	}}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			store := mockdb.NewMockStore(ctrl)
+
+			tc.buildStubs(store)
+
+			server := NewServer(store)
+			recorder := httptest.NewRecorder()
+
+			url := "/accounts"
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			q := request.URL.Query()
+			q.Add("page_id", fmt.Sprintf("%d", tc.query.PageID))
+			q.Add("page_size", fmt.Sprintf("%d", tc.query.PageSize))
+			request.URL.RawQuery = q.Encode()
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+
+		})
+	}
+}
+
+func TestDeleteAccount(t *testing.T) {
+	account := randomAccount()
+	testCases := []struct {
+		name          string
+		accountID     int64
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{{
+		name:      "OK",
+		accountID: account.ID,
+		buildStubs: func(store *mockdb.MockStore) {
+			store.EXPECT().DeleteAccount(gomock.Any(), gomock.Eq(account.ID)).Times(1).Return(nil)
+		},
+		checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+			require.Equal(t, recorder.Code, http.StatusOK)
+		},
+	}, {
+		name:      "BadRequest",
+		accountID: 0,
+		buildStubs: func(store *mockdb.MockStore) {
+			store.EXPECT().DeleteAccount(gomock.Any(), gomock.Any()).Times(0)
+		},
+		checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+			require.Equal(t, recorder.Code, http.StatusBadRequest)
+		},
+	}, {
+		name:      "InternalError",
+		accountID: account.ID,
+		buildStubs: func(store *mockdb.MockStore) {
+			store.EXPECT().DeleteAccount(gomock.Any(), gomock.Eq(account.ID)).Times(1).Return(sql.ErrConnDone)
+		},
+		checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+			require.Equal(t, recorder.Code, http.StatusInternalServerError)
+		},
+	}}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			store := mockdb.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := NewServer(store)
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/accounts/%d", tc.accountID)
+			request, err := http.NewRequest(http.MethodDelete, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
 func randomAccount() db.Account {
 	return db.Account{
 		ID:       util.RandomInt(1, 100),
@@ -158,4 +338,15 @@ func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account db.Accoun
 	require.NoError(t, err)
 
 	require.Equal(t, account, gotAccount)
+}
+
+func requireBodyMatchAccounts(t *testing.T, body *bytes.Buffer, accounts []db.Account) {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotAccounts []db.Account
+	err = json.Unmarshal(data, &gotAccounts)
+	require.NoError(t, err)
+
+	require.Equal(t, accounts, gotAccounts)
 }

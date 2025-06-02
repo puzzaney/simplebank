@@ -79,6 +79,7 @@ func (server *Server) listAccount(ctx *gin.Context) {
 
 	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResponse(err))
+		return
 	}
 
 	arg := db.ListAccountsParams{
@@ -90,6 +91,7 @@ func (server *Server) listAccount(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
 	}
 
 	ctx.JSON(http.StatusOK, accounts)
