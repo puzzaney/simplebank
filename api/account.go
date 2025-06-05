@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	db "github.com/puzzaney/simplebank/db/sqlc"
+	"github.com/puzzaney/simplebank/token"
 )
 
 type createAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency" binding:"required,currency"`
 }
 
@@ -22,8 +22,10 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
+	payload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	arg := db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    payload.Username,
 		Currency: req.Currency,
 		Balance:  0,
 	}
