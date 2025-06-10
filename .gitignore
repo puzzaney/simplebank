@@ -1,1 +1,3 @@
 *.out
+eks/
+deploy.yml
