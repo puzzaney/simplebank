@@ -34,6 +34,4 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 
 }
 
-func (server *Server) Start(address string) {
 
-}
