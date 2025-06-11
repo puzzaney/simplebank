@@ -28,6 +28,17 @@ func main() {
 	runGinServer(config, store)
 }
 
+// func runGrpcServer(config util.Config, store db.Store){
+// 	server, err := gapi.NewServer(config, store)
+// 	if err != nil {
+// 		log.Fatal("cannot create gRPC server: %w", err)
+// 	}
+//
+// 	grpcServer := grpc.NewServer()
+// 	pb.RegisterSimpleBankServer(grpcServer, server)
+//
+// }
+
 
 func runGinServer(config util.Config, store db.Store) {
 	server, err := api.NewServer(config, store)
@@ -35,7 +46,7 @@ func runGinServer(config util.Config, store db.Store) {
 		log.Fatal("cannot create server: ", err)
 	}
 
-	if err = server.Start(config.ServerAddress); err != nil {
+	if err = server.Start(config.HTTPServerAddress); err != nil {
 		log.Fatal("Cannot start server")
 	}
 
