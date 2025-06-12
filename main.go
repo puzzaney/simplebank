@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net"
+	"net/http"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
 	"github.com/puzzaney/simplebank/api"
 	db "github.com/puzzaney/simplebank/db/sqlc"
@@ -27,10 +30,13 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
+
+	go runGatewayServer(config, store)
+
 	runGrpcServer(config, store)
 }
 
-func runGrpcServer(config util.Config, store db.Store){
+func runGrpcServer(config util.Config, store db.Store) {
 	server, err := gapi.NewServer(config, store)
 	if err != nil {
 		log.Fatal("cannot create gRPC server: %w", err)
@@ -39,7 +45,7 @@ func runGrpcServer(config util.Config, store db.Store){
 	grpcServer := grpc.NewServer()
 	pb.RegisterSimpleBankServer(grpcServer, server)
 	reflection.Register(grpcServer)
-	
+
 	listener, err := net.Listen("tcp", config.GRPCServerAddress)
 	if err != nil {
 		log.Fatal("Cannot create listener: %w", err)
@@ -47,11 +53,41 @@ func runGrpcServer(config util.Config, store db.Store){
 
 	log.Printf("start gRPC server at: %s", config.GRPCServerAddress)
 	err = grpcServer.Serve(listener)
-	if err!=nil{
+	if err != nil {
 		log.Printf("cannot start gRPC server")
 	}
 }
 
+func runGatewayServer(config util.Config, store db.Store) {
+	server, err := gapi.NewServer(config, store)
+	if err != nil {
+		log.Fatal("cannot create gRPC server: %w", err)
+	}
+
+	grpcMux := runtime.NewServeMux()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	err = pb.RegisterSimpleBankHandlerServer(ctx, grpcMux, server)
+	if err != nil {
+		log.Fatal("Cannot register handler server")
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", grpcMux)
+
+	listener, err := net.Listen("tcp", config.HTTPServerAddress)
+	if err != nil {
+		log.Fatal("Cannot create listener: %w", err)
+	}
+
+	log.Printf("start gRPC server at: %s", config.GRPCServerAddress)
+	err = http.Serve(listener, mux)
+	if err != nil {
+		log.Printf("cannot start gRPC server")
+	}
+}
 
 func runGinServer(config util.Config, store db.Store) {
 	server, err := api.NewServer(config, store)
