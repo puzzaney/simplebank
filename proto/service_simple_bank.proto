@@ -11,14 +11,14 @@ option go_package = "github.com/puzzaney/simplebank/pb";
 service SimpleBank {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
     option (google.api.http) = {
-      post : "v1/create_user"
+      post : "/v1/create_user"
       body : "*"
     };
   }
 
   rpc LoginUser(LoginUserRequest) returns (LoginUserResponse) {
     option (google.api.http) = {
-      post : "v1/login_user"
+      post : "/v1/login_user"
       body : "*"
     };
   }
