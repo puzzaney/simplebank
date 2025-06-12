@@ -29,7 +29,7 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot create access token: %s", err)
 	}
-	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(req.Username, server.config.AccessTokenDuration)
+	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(req.Username, server.config.RefreshTokenDuration)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot create refresh token: %s", err)
 	}
