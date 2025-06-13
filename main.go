@@ -11,7 +11,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/puzzaney/simplebank/api"
 	db "github.com/puzzaney/simplebank/db/sqlc"
-	_"github.com/puzzaney/simplebank/doc/statik"
+	_ "github.com/puzzaney/simplebank/doc/statik"
 	"github.com/puzzaney/simplebank/gapi"
 	"github.com/puzzaney/simplebank/pb"
 	"github.com/puzzaney/simplebank/util"
@@ -93,7 +93,7 @@ func runGatewayServer(config util.Config, store db.Store) {
 	statikFS, err := fs.New()
 
 	if err != nil {
-		log.Fatal("cannot create statik fs: %s", err)
+		log.Fatal("cannot create statik fs: ", err)
 	}
 
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.FileServer(statikFS)))
