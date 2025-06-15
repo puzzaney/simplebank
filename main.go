@@ -121,10 +121,10 @@ func runGatewayServer(config util.Config, store db.Store) {
 		log.Fatal("Cannot create listener: %w", err)
 	}
 
-	log.Printf("start gRPC server at: %s", config.GRPCServerAddress)
+	log.Printf("start HTTP gateway server at: %s", config.HTTPServerAddress)
 	err = http.Serve(listener, mux)
 	if err != nil {
-		log.Printf("cannot start gRPC server")
+		log.Printf("cannot start HTTP gateway server")
 	}
 }
 
