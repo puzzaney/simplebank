@@ -93,7 +93,7 @@
       "patch": {
         "summary": "Update User",
         "description": "Use this API to update user details",
-        "operationId": "SimpleBank_UpdateUpser",
+        "operationId": "SimpleBank_UpdateUser",
         "responses": {
           "200": {
             "description": "A successful response.",

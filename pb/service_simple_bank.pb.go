@@ -26,14 +26,15 @@ var File_service_simple_bank_proto protoreflect.FileDescriptor
 
 const file_service_simple_bank_proto_rawDesc = "" +
 	"\n" +
-	"\x19service_simple_bank.proto\x12\x02pb\x1a\x1cgoogle/api/annotations.proto\x1a\x15rpc_create_user.proto\x1a\x15rpc_update_user.proto\x1a\x14rpc_login_user.proto\x1a.protoc-gen-openapiv2/options/annotations.proto2\xd5\x03\n" +
+	"\x19service_simple_bank.proto\x12\x02pb\x1a\x1cgoogle/api/annotations.proto\x1a\x15rpc_create_user.proto\x1a\x15rpc_update_user.proto\x1a\x14rpc_login_user.proto\x1a.protoc-gen-openapiv2/options/annotations.proto2\xd4\x03\n" +
 	"\n" +
 	"SimpleBank\x12\x8e\x01\n" +
 	"\n" +
 	"CreateUser\x12\x15.pb.CreateUserRequest\x1a\x16.pb.CreateUserResponse\"Q\x92A4\x12\x0fCreate new user\x1a!Use this API to create a new user\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/create_user\x12\xa5\x01\n" +
 	"\tLoginUser\x12\x14.pb.LoginUserRequest\x1a\x15.pb.LoginUserResponse\"k\x92AO\x12\n" +
-	"Login User\x1aAUse this API to login user and get access token and refresh token\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/login_user\x12\x8d\x01\n" +
-	"\vUpdateUpser\x12\x15.pb.UpdateUserRequest\x1a\x16.pb.UpdateUserResponse\"O\x92A2\x12\vUpdate User\x1a#Use this API to update user details\x82\xd3\xe4\x93\x02\x14:\x01*2\x0f/v1/update_userB\x82\x01\x92A\\\x12Z\n" +
+	"Login User\x1aAUse this API to login user and get access token and refresh token\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/login_user\x12\x8c\x01\n" +
+	"\n" +
+	"UpdateUser\x12\x15.pb.UpdateUserRequest\x1a\x16.pb.UpdateUserResponse\"O\x92A2\x12\vUpdate User\x1a#Use this API to update user details\x82\xd3\xe4\x93\x02\x14:\x01*2\x0f/v1/update_userB\x82\x01\x92A\\\x12Z\n" +
 	"\x0fSimple Bank API\"B\n" +
 	"\fPuzZan Karki\x12\x1bhttps://github.com/puzzaney\x1a\x15mail.puzzan@gmail.com2\x031.2Z!github.com/puzzaney/simplebank/pbb\x06proto3"
 
@@ -48,10 +49,10 @@ var file_service_simple_bank_proto_goTypes = []any{
 var file_service_simple_bank_proto_depIdxs = []int32{
 	0, // 0: pb.SimpleBank.CreateUser:input_type -> pb.CreateUserRequest
 	1, // 1: pb.SimpleBank.LoginUser:input_type -> pb.LoginUserRequest
-	2, // 2: pb.SimpleBank.UpdateUpser:input_type -> pb.UpdateUserRequest
+	2, // 2: pb.SimpleBank.UpdateUser:input_type -> pb.UpdateUserRequest
 	3, // 3: pb.SimpleBank.CreateUser:output_type -> pb.CreateUserResponse
 	4, // 4: pb.SimpleBank.LoginUser:output_type -> pb.LoginUserResponse
-	5, // 5: pb.SimpleBank.UpdateUpser:output_type -> pb.UpdateUserResponse
+	5, // 5: pb.SimpleBank.UpdateUser:output_type -> pb.UpdateUserResponse
 	3, // [3:6] is the sub-list for method output_type
 	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

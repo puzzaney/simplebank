@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SimpleBank_CreateUser_FullMethodName  = "/pb.SimpleBank/CreateUser"
-	SimpleBank_LoginUser_FullMethodName   = "/pb.SimpleBank/LoginUser"
-	SimpleBank_UpdateUpser_FullMethodName = "/pb.SimpleBank/UpdateUpser"
+	SimpleBank_CreateUser_FullMethodName = "/pb.SimpleBank/CreateUser"
+	SimpleBank_LoginUser_FullMethodName  = "/pb.SimpleBank/LoginUser"
+	SimpleBank_UpdateUser_FullMethodName = "/pb.SimpleBank/UpdateUser"
 )
 
 // SimpleBankClient is the client API for SimpleBank service.
@@ -30,7 +30,7 @@ const (
 type SimpleBankClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	LoginUser(ctx context.Context, in *LoginUserRequest, opts ...grpc.CallOption) (*LoginUserResponse, error)
-	UpdateUpser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
+	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 }
 
 type simpleBankClient struct {
@@ -61,10 +61,10 @@ func (c *simpleBankClient) LoginUser(ctx context.Context, in *LoginUserRequest, 
 	return out, nil
 }
 
-func (c *simpleBankClient) UpdateUpser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
+func (c *simpleBankClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateUserResponse)
-	err := c.cc.Invoke(ctx, SimpleBank_UpdateUpser_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SimpleBank_UpdateUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *simpleBankClient) UpdateUpser(ctx context.Context, in *UpdateUserReques
 type SimpleBankServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error)
-	UpdateUpser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
+	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	mustEmbedUnimplementedSimpleBankServer()
 }
 
@@ -94,8 +94,8 @@ func (UnimplementedSimpleBankServer) CreateUser(context.Context, *CreateUserRequ
 func (UnimplementedSimpleBankServer) LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
 }
-func (UnimplementedSimpleBankServer) UpdateUpser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateUpser not implemented")
+func (UnimplementedSimpleBankServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedSimpleBankServer) mustEmbedUnimplementedSimpleBankServer() {}
 func (UnimplementedSimpleBankServer) testEmbeddedByValue()                    {}
@@ -154,20 +154,20 @@ func _SimpleBank_LoginUser_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SimpleBank_UpdateUpser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SimpleBank_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SimpleBankServer).UpdateUpser(ctx, in)
+		return srv.(SimpleBankServer).UpdateUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SimpleBank_UpdateUpser_FullMethodName,
+		FullMethod: SimpleBank_UpdateUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SimpleBankServer).UpdateUpser(ctx, req.(*UpdateUserRequest))
+		return srv.(SimpleBankServer).UpdateUser(ctx, req.(*UpdateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -188,8 +188,8 @@ var SimpleBank_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SimpleBank_LoginUser_Handler,
 		},
 		{
-			MethodName: "UpdateUpser",
-			Handler:    _SimpleBank_UpdateUpser_Handler,
+			MethodName: "UpdateUser",
+			Handler:    _SimpleBank_UpdateUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
