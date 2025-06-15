@@ -15,12 +15,21 @@ import (
 )
 
 func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+	authPayload, err := server.authorizeUser(ctx)
+	if err != nil {
+		return nil, unauthenticatedError(err)
+	}
+
 	violations := ValidateUpdateUser(req)
 	if violations != nil {
 		return nil, invalidArgumentError(violations)
 	}
 
-	_, err := server.store.GetUser(ctx, req.Username)
+	if authPayload.Username != req.GetUsername() {
+		return nil, status.Errorf(codes.PermissionDenied, "cannot update other user's info")
+	}
+
+	_, err = server.store.GetUser(ctx, req.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Errorf(codes.NotFound, "user not found: %s", err)
@@ -52,7 +61,7 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 		}
 
 		arg.PasswordChangedAt = sql.NullTime{
-			Time: time.Now(),
+			Time:  time.Now(),
 			Valid: true,
 		}
 	}
